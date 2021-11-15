@@ -90,7 +90,9 @@ final = pd.DataFrame(new_combo.values(),columns=["Items","Support"])
 new_final = final[final["Support"] >= min_supp].reset_index(drop=True)
 
 
-highst_len = len(new_final.Items.iloc[-1])
+highst_len = 0
+if new_final.shape[0] != 0:
+    highst_len = len(new_final.Items.iloc[-1])
 final_comb = new_final[new_final['Items'].str.len() == highst_len].reset_index(drop=True)
 
 
