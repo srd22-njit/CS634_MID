@@ -98,23 +98,25 @@ final_comb = new_final[new_final['Items'].str.len() == highst_len].reset_index(d
 
 cols = ["Item1","Item2","Support1","Support2","Confidence"]
 conf_df = pd.DataFrame(columns=cols)
-print("\nFinal associations:\n")
 for item_lst in final_comb.Items:
     supp_item = new_final[new_final['Items'].apply(lambda x: x == item_lst)].values[0][1]
     assc_combo = make_combos(item_lst,highst_len)
     for key, val in assc_combo.items():
         for item in val:            
-            item2 = sorted(list(set(item_lst) - set(item)))            
-            supp_item2 = new_final[new_final['Items'].apply(lambda x: x == item2)].values[0][1]
-            confidence = supp_item / supp_item2    
-            if confidence >= args.min_conf:
-                print("{x} -> {y}".format(x=item, y= item2))
-                print("Confidence = Supp({x}) / Supp{y}".format(x=item_lst, y= item2))
-                print("           = {x} / {y}".format(x=supp_item, y=supp_item2))
-                print("           = {x:.2f}\n".format(x=confidence))
-            dict_lst = [item,item2,supp_item,supp_item2,confidence]
-            res = {cols[i]: dict_lst[i] for i in range(len(cols))}
-            conf_df = conf_df.append(res, ignore_index=True)
+            item2 = sorted(list(set(item_lst) - set(item)))
+            item_set = new_final[new_final['Items'].apply(lambda x: x == item2)]
+            if item_set.shape[0] != 0:
+                supp_item2 = item_set.values[0][1]
+                if supp_item2 > 0:
+                    confidence = supp_item / supp_item2    
+                    if confidence >= args.min_conf:
+                        print("{x} -> {y}".format(x=item, y= item2))
+                        print("Confidence = Supp({x}) / Supp{y}".format(x=item_lst, y= item2))
+                        print("           = {x} / {y}".format(x=supp_item, y=supp_item2))
+                        print("           = {x:.2f}\n".format(x=confidence))
+                    dict_lst = [item,item2,supp_item,supp_item2,confidence]
+                    res = {cols[i]: dict_lst[i] for i in range(len(cols))}
+                    conf_df = conf_df.append(res, ignore_index=True)
 
 
 conf_matrix = conf_df[conf_df["Confidence"] >= args.min_conf].reset_index(drop=True)
